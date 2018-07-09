@@ -21,12 +21,18 @@
  * @APPPLANT_LICENSE_HEADER_END@
  */
 
+#import "APPLocalNotificationOptions.h"
+
 @import UserNotifications;
 
-@interface UNNotificationRequest (APPLocalNotification)
+@interface UNMutableNotificationContent (APPLocalNotification)
 
+// Initialize a new local notification
+- (id) initWithOptions:(NSDictionary*)dict;
 // The options provided by the plug-in
 - (APPLocalNotificationOptions*) options;
+// Fully configured request to add the notification to the notification center
+- (UNNotificationRequest*) request;
 // Encode the user info dict to JSON
 - (NSString*) encodeToJSON;
 

@@ -21,13 +21,24 @@
  * @APPPLANT_LICENSE_HEADER_END@
  */
 
-@import UserNotifications;
+package de.appplant.cordova.plugin.notification;
 
-@interface UNNotificationRequest (APPLocalNotification)
+/**
+ * The clear intent receiver is triggered when the user clears a
+ * notification manually. It un-persists the cleared notification from the
+ * shared preferences.
+ */
+public class ClearReceiver extends AbstractClearReceiver {
 
-// The options provided by the plug-in
-- (APPLocalNotificationOptions*) options;
-// Encode the user info dict to JSON
-- (NSString*) encodeToJSON;
+    /**
+     * Called when a local notification was cleared from outside of the app.
+     *
+     * @param notification
+     *      Wrapper around the local notification
+     */
+    @Override
+    public void onClear (Notification notification) {
+        notification.clear();
+    }
 
-@end
+}

@@ -21,18 +21,48 @@
  * @APPPLANT_LICENSE_HEADER_END@
  */
 
-package de.appplant.cordova.plugin.localnotification;
+package de.appplant.cordova.plugin.notification;
 
-import de.appplant.cordova.plugin.notification.AbstractRestoreReceiver;
-import de.appplant.cordova.plugin.notification.Builder;
-import de.appplant.cordova.plugin.notification.Notification;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * This class is triggered upon reboot of the device. It needs to re-register
  * the alarms with the AlarmManager since these alarms are lost in case of
  * reboot.
  */
-public class RestoreReceiver extends AbstractRestoreReceiver {
+abstract public class AbstractRestoreReceiver extends BroadcastReceiver {
+
+    /**
+     * Called on device reboot.
+     *
+     * @param context
+     *      Application context
+     * @param intent
+     *      Received intent with content data
+     */
+    @Override
+    public void onReceive (Context context, Intent intent) {
+        Manager notificationMgr =
+                Manager.getInstance(context);
+
+        List<JSONObject> options =
+                notificationMgr.getOptions();
+
+        for (JSONObject data : options) {
+            Builder builder = new Builder(context, data);
+
+            Notification notification =
+                    buildNotification(builder);
+
+            onRestore(notification);
+        }
+    }
 
     /**
      * Called when a local notification need to be restored.
@@ -40,14 +70,7 @@ public class RestoreReceiver extends AbstractRestoreReceiver {
      * @param notification
      *      Wrapper around the local notification
      */
-    @Override
-    public void onRestore (Notification notification) {
-        if (notification.isScheduled()) {
-            notification.schedule();
-        } else {
-            notification.cancel();
-        }
-    }
+    abstract public void onRestore (Notification notification);
 
     /**
      * Build notification specified by options.
@@ -55,13 +78,6 @@ public class RestoreReceiver extends AbstractRestoreReceiver {
      * @param builder
      *      Notification builder
      */
-    @Override
-    public Notification buildNotification (Builder builder) {
-        return builder
-                .setTriggerReceiver(TriggerReceiver.class)
-                .setClearReceiver(ClearReceiver.class)
-                .setClickActivity(ClickActivity.class)
-                .build();
-    }
+    abstract public Notification buildNotification (Builder builder);
 
 }

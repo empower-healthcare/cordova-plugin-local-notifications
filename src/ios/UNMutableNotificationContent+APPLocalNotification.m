@@ -23,14 +23,66 @@
 
 #import "UNMutableNotificationContent+APPLocalNotification.h"
 #import "APPLocalNotificationOptions.h"
-#import "UNNotificationRequest+APPLocalNotification.h"
 #import <objc/runtime.h>
 
 @import UserNotifications;
 
 static char optionsKey;
 
-@implementation UNNotificationRequest (APPLocalNotification)
+@implementation UNMutableNotificationContent (APPLocalNotification)
+
+#pragma mark -
+#pragma mark Init
+
+/**
+ * Initialize a local notification with the given options when calling on JS side:
+ * notification.local.add(options)
+ */
+- (id) initWithOptions:(NSDictionary*)dict
+{
+    self = [self init];
+
+    [self setUserInfo:dict];
+    [self __init];
+
+    return self;
+}
+
+/**
+ * Applies the given options when calling on JS side:
+ * notification.local.add(options)
+
+ */
+- (void) __init
+{
+    APPLocalNotificationOptions* options = self.options;
+
+    self.title    = options.title;
+    self.subtitle = options.subtitle;
+    self.body     = options.text;
+    self.sound    = options.sound;
+    self.badge    = options.badge;
+}
+
+#pragma mark -
+#pragma mark Methods
+
+/**
+ * The options provided by the plug-in.
+ */
+- (APPLocalNotificationOptions*) options
+{
+    APPLocalNotificationOptions* options = [self getOptions];
+
+    if (!options) {
+        options = [[APPLocalNotificationOptions alloc]
+                   initWithDict:[self userInfo]];
+
+        [self setOptions:options];
+    }
+
+    return options;
+}
 
 /**
  * Get associated option object
@@ -50,20 +102,16 @@ static char optionsKey;
 }
 
 /**
- * The options provided by the plug-in.
+ * The notifcations request ready to add to the notification center including
+ * all informations about trigger behavior.
  */
-- (APPLocalNotificationOptions*) options
+- (UNNotificationRequest*) request
 {
-    APPLocalNotificationOptions* options = [self getOptions];
+    APPLocalNotificationOptions* opts = [self getOptions];
 
-    if (!options) {
-        options = [[APPLocalNotificationOptions alloc]
-                   initWithDict:[self.content userInfo]];
-
-        [self setOptions:options];
-    }
-
-    return options;
+    return [UNNotificationRequest requestWithIdentifier:opts.identifier
+                                                content:self
+                                                trigger:opts.trigger];
 }
 
 /**
@@ -73,7 +121,7 @@ static char optionsKey;
 {
     NSString* json;
     NSData* data;
-    NSMutableDictionary* obj = [self.content.userInfo mutableCopy];
+    NSMutableDictionary* obj = [self.userInfo mutableCopy];
 
     [obj removeObjectForKey:@"updatedAt"];
 
