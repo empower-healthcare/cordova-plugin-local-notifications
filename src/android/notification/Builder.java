@@ -23,10 +23,14 @@
 
 package de.appplant.cordova.plugin.notification;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import org.json.JSONObject;
@@ -115,13 +119,33 @@ public class Builder {
      * Creates the notification with all its options passed through JS.
      */
     public Notification build() {
+        NotificationManager notificationManager = (NotificationManager) context
+                .getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelID = "local_channel_1";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                channelID, // 通知チャンネルID
+                "Shinsatsuken Local", // 通知チャンネル名
+                NotificationManager.IMPORTANCE_HIGH // 優先度
+                );
+            channel.setDescription("Shinsatsuken Local");
+            channel.setLightColor(Color.GREEN);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+            notificationManager.createNotificationChannel(channel);
+        }
+
         Uri sound     = options.getSoundUri();
         int smallIcon = options.getSmallIcon();
         int ledColor  = options.getLedColor();
         NotificationCompat.Builder builder;
 
-        builder = new NotificationCompat.Builder(context)
-                .setDefaults(0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(context, channelID);
+        } else {
+            builder = new NotificationCompat.Builder(context);
+        }
+
+        builder.setDefaults(0)
                 .setContentTitle(options.getTitle())
                 .setContentText(options.getText())
                 .setNumber(options.getBadgeNumber())
