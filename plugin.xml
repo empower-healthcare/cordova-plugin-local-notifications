@@ -88,12 +88,20 @@
     <!-- android -->
     <platform name="android">
 
+        <preference name="CHANNEL_ID"/>
+        <preference name="CHANNEL_DESCRIPTION"/>
+
         <framework src="com.android.support:support-v4:+" value="gradle" />
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="LocalNotification">
                 <param name="android-package" value="de.appplant.cordova.plugin.localnotification.LocalNotification"/>
             </feature>
+        </config-file>
+
+        <config-file target="res/values/strings.xml" parent="/resources">
+            <string name="local_channel_id">$CHANNEL_ID</string>
+            <string name="local_channel_description">$CHANNEL_DESCRIPTION</string>
         </config-file>
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">

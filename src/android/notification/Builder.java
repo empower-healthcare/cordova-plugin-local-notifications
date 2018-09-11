@@ -119,16 +119,26 @@ public class Builder {
      * Creates the notification with all its options passed through JS.
      */
     public Notification build() {
+        String channelID = "";
+
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        String channelID = "local_channel_1";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String packageName = context.getPackageName();
+            Resources resources = context.getResources();
+
+            int appResId;
+            appResId = resources.getIdentifier("local_channel_id", "string", packageName);
+            channelID = context.getString(appResId);
+            appResId = resources.getIdentifier("local_channel_description", "string", packageName);
+            String channelDescription = context.getString(appResId);
+
             NotificationChannel channel = new NotificationChannel(
                 channelID, // 通知チャンネルID
-                "Shinsatsuken Local", // 通知チャンネル名
+                channelDescription, // 通知チャンネル名
                 NotificationManager.IMPORTANCE_HIGH // 優先度
                 );
-            channel.setDescription("Shinsatsuken Local");
+            channel.setDescription(channelDescription);
             channel.setLightColor(Color.GREEN);
             channel.setLockscreenVisibility(android.app.Notification.VISIBILITY_PRIVATE);
             notificationManager.createNotificationChannel(channel);
