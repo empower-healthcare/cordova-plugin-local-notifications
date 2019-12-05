@@ -67,6 +67,16 @@
         [self.commandDelegate evalJs:js];
     }
 
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *keyEventQueue = @"MmS_eventQueue";
+    [userDefaults setBool:deviceready forKey:@"MmS_deviceready"];
+    NSArray* v_eventQueue = [userDefaults valueForKey:keyEventQueue];
+    for (NSString* js in v_eventQueue) {
+        [self.commandDelegate evalJs:js];
+    }
+    [userDefaults setValue:[[NSArray alloc] init] forKey:keyEventQueue];
+    [userDefaults synchronize];
+
     [eventQueue removeAllObjects];
 }
 
@@ -667,37 +677,37 @@
 /**
  * Called when a notification is delivered to a foreground app.
  */
-- (void) userNotificationCenter:(UNUserNotificationCenter *)center
-        willPresentNotification:(UNNotification *)notification
-          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
-{
-    [self fireEvent:@"trigger" notification:notification.request];
-    completionHandler(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert);
-}
+//- (void) userNotificationCenter:(UNUserNotificationCenter *)center
+//        willPresentNotification:(UNNotification *)notification
+//          withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler
+//{
+//    [self fireEvent:@"trigger" notification:notification.request];
+//    completionHandler(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert);
+//}
 
 
 /**
  * Called to let your app know which action was selected by the user for a given
  * notification.
  */
-- (void) userNotificationCenter:(UNUserNotificationCenter *)center
- didReceiveNotificationResponse:(UNNotificationResponse *)response
-          withCompletionHandler:(void (^)())completionHandler
-{
-    UNNotificationRequest* notification = response.notification.request;
-
-    [self fireEvent:@"click" notification:notification];
-
-    if ([notification.options isRepeating]) {
-        [self.center clearNotification:notification];
-        [self fireEvent:@"clear" notification:notification];
-    } else {
-        [self.center cancelNotification:notification];
-        [self fireEvent:@"cancel" notification:notification];
-    }
-
-    completionHandler();
-}
+//- (void) userNotificationCenter:(UNUserNotificationCenter *)center
+// didReceiveNotificationResponse:(UNNotificationResponse *)response
+//          withCompletionHandler:(void (^)())completionHandler
+//{
+//    UNNotificationRequest* notification = response.notification.request;
+//
+//    [self fireEvent:@"click" notification:notification];
+//
+//    if ([notification.options isRepeating]) {
+//        [self.center clearNotification:notification];
+//        [self fireEvent:@"clear" notification:notification];
+//    } else {
+//        [self.center cancelNotification:notification];
+//        [self fireEvent:@"cancel" notification:notification];
+//    }
+//
+//    completionHandler();
+//}
 
 #pragma mark -
 #pragma mark Life Cycle
