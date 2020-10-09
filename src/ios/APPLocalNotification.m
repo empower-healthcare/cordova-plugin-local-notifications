@@ -910,7 +910,7 @@
 
     if (localNotification) {
         [self didReceiveLocalNotification:
-         [NSNotification notificationWithName:CDVLocalNotification
+         [NSNotification notificationWithName:@"LocalNotification"
                                        object:localNotification]];
     }
 }
